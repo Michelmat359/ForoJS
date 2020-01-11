@@ -7,10 +7,9 @@ var dm = require('./dm_local.js');
 var viewsdir = __dirname + '/views';
 app.set('views', viewsdir)
 
-// Añadir un argumento adicional a forum.js, que será la URL del publicador de datos al que se subscribirá.
+// Añadir un argumentos
 var HOST = '127.0.0.1';
 var PORT = process.argv[3];
-var HTTPPORT = process.argv[2]; //puerto pagina web
 dm.Start(HOST, PORT);
 
 // called on connection

@@ -1,6 +1,8 @@
-var net = require('net');
-
-var client = new net.Socket();
+//var net = require('net');
+var zmq = require('zmq');
+// AÑADIMOS EL REQ Y MODIFICAMOS EL CLIENT.*
+var req = new zmq.socket('req'); 
+//var client = new net.Socket();
 
 exports.Start = function (host, port, cb) {
 	client.connect(port, host, function() {
@@ -18,7 +20,7 @@ var invoCounter = 0; // current invocation number is key to access "callbacks".
 // extract the reply, find the callback, and call it.
 // Its useful to study "exports" functions before studying this one.
 //
-client.on ('data', function (data) {
+req.on ('data', function (data) {
 	console.log ('data comes in: ' + data);
 	var reply = JSON.parse (data.toString());
 	switch (reply.what) {
@@ -67,7 +69,7 @@ client.on ('data', function (data) {
 });
 
 // Add a 'close' event handler for the client socket
-client.on('close', function() {
+req.on('close', function() {
     console.log('Connection closed');
 });
 
@@ -93,33 +95,33 @@ exports.addUser = function (u,p, cb) {
 	var invo = new Invo('add user', cb);
 	invo.u = u;
 	invo.p = p;
-	client.write(JSON.stringify(invo));
+	req.write(JSON.stringify(invo));
 }
 
 exports.addSubject = function (s, cb) {
 	var invo = new Invo('add subject', cb);
 	invo.s = s;
-	client.write(JSON.stringify(invo));
+	req.write(JSON.stringify(invo));
 }
 
 // YA TENEMOS getSubjectList
 
 
 exports.getUserList = function (cb) {
-	client.write (JSON.stringify(new Invo ('get user list', cb)) + "$$#-#$$");
+	req.write (JSON.stringify(new Invo ('get user list', cb)) + "$$#-#$$");
 }
 
 exports.login = function (u, p, cb) {
 	var invo = new Invo('login', cb);
 	invo.u = u;
 	invo.p = p;
-	client.write(JSON.stringify(invo));
+	req.write(JSON.stringify(invo));
 }
 
 exports.addPrivateMessage = function (msg, cb) {
 	var invo = new Invo('add private message', cb);
 	invo.msg = msg;
-	client.write(JSON.stringify(invo));
+	req.write(JSON.stringify(invo));
 }
 
 // YA TENEMOS GETPRIVATEMESSAGELIST
@@ -128,13 +130,13 @@ exports.addPrivateMessage = function (msg, cb) {
 function getSubject (sbj, cb) {
 	var invo = new Invo('get subject',cb);
 	invo.sbj = sbj;
-	client.write(JSON.stringify(invo));
+	req.write(JSON.stringify(invo));
 }
 
 exports.addPublicMessage = function (msg, cb) {
 	var invo = new Invo('add public message', cb);
 	invo.msg = msg;
-	client.write(JSON.stringify(invo));
+	req.write(JSON.stringify(invo));
 }
 
 // YA TENEMOS getPublicMessageList
@@ -142,18 +144,18 @@ exports.addPublicMessage = function (msg, cb) {
 exports.getPublicMessageList = function  (sbj, cb) {
 	var invo = new Invo ('get public message list', cb);	
 	invo.sbj = sbj;
-	client.write (JSON.stringify(invo));
+	req.write (JSON.stringify(invo));
 }
 
 exports.getPrivateMessageList = function (u1, u2, cb) {
 	invo = new Invo ('get private message list', cb);
 	invo.u1 = u1;
 	invo.u2 = u2;
-	client.write (JSON.stringify(invo));
+	req.write (JSON.stringify(invo));
 }
 
 exports.getSubjectList = function (cb) {
-	client.write (JSON.stringify(new Invo ('get subject list', cb)));
+	req.write (JSON.stringify(new Invo ('get subject list', cb)));
 }
 
 // TODO: complete the rest of the forum functions.

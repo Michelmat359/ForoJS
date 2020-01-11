@@ -1,5 +1,4 @@
 var dm = require ('./dm_remote.js');
-var net = require('net');
 // AÑADIR LOS ARGUMENTOS EN LINEA DE ORDENES
 // var HOST = '127.0.0.1';
 // var PORT = 9000;

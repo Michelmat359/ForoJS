@@ -1,10 +1,20 @@
-var net = require('net');
-var HOST = '127.0.0.1';
+//var net = require('net');
+var zmq = require('zmq');
+var dm = require ('./dm.js');
+var pub = zmq.socket('pub');
+var rep = zmq.socket('rep');
+var sub = zmq.socket('sub');
+//var HOST = '127.0.0.1';
 // Escuche en el puerto que indiquemos como argumento.
 //var PORT = 9000;
-var PORT = process.argv[2]; 
+var HOST = process.argv[2];//'127.0.0.1'
+var PORT = process.argv[3];//'9900'
 var dm = require ('./dm.js');
+//Añadir un argumento adicional a dmserver.js que será el puerto donde éste publicará sus cambios
+var PORTPUB = process.argv[4];
+pub.bind('tcp://'+HOST+':'+PORTPUB);
 
+//CAMBIAR PARA ZMQ
 // Create the server socket, on client connections, bind event handlers
 server = net.createServer(function(sock) {
     
@@ -12,7 +22,7 @@ server = net.createServer(function(sock) {
     console.log('Conected: ' + sock.remoteAddress + ':' + sock.remotePort);
     
     // Add a 'data' event handler to this instance of socket
-    sock.on('data', function(data) {
+    rep.on('data', function(data) {
         
         console.log('request comes in...' + data);
         var str = data.toString();
@@ -53,12 +63,12 @@ server = net.createServer(function(sock) {
                 reply.obj = dm.addPrivateMessage (cmd.msg);
                 break;
         }
-        sock.write (JSON.stringify(reply));
+        rep.write (JSON.stringify(reply));
     });
 
 
     // Add a 'close' event handler to this instance of socket
-    sock.on('close', function(data) {
+    rep.on('close', function(data) {
         console.log('Connection closed');
     });
     
