@@ -1,8 +1,10 @@
 var dm = require ('./dm_remote.js');
 var net = require('net');
-var HOST = '127.0.0.1';
-var PORT = 9000;
-
+// AÑADIR LOS ARGUMENTOS EN LINEA DE ORDENES
+// var HOST = '127.0.0.1';
+// var PORT = 9000;
+var HOST = process.argv[2]; 
+var PORT = process.argv[3];
 
 dm.Start(HOST, PORT, function () {
 	// Write the command to the server 

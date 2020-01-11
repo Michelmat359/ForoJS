@@ -1,7 +1,8 @@
 var net = require('net');
 var HOST = '127.0.0.1';
-var PORT = 9000;
-
+// Escuche en el puerto que indiquemos como argumento.
+//var PORT = 9000;
+var PORT = process.argv[2]; 
 var dm = require ('./dm.js');
 
 // Create the server socket, on client connections, bind event handlers
