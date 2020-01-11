@@ -30,6 +30,27 @@ server = net.createServer(function(sock) {
             	reply.obj = dm.getPrivateMessageList (cmd.u1, cmd.u2);
             	break;
             // TODO: complete all forum functions
+            case 'add user': 
+                reply.obj = dm.addUser (cmd.u, cmd.p);
+                break;
+            case 'add subject': 
+                reply.obj = dm.addSubject (cmd.s);
+                break;
+                case 'get subject list': 
+                reply.obj = dm.getSubjectList();
+                break;
+            case 'get user list': 
+                reply.obj = dm.getUserList ();//REVISAR sin argumentos
+                break;
+            case 'login': 
+                reply.obj = dm.login (cmd.u, cmd.p);
+                break;
+            case 'get subject':
+                    reply.obj = dm.login (invo.sbj);
+                break;
+            case 'add private message': 
+                reply.obj = dm.addPrivateMessage (cmd.msg);
+                break;
         }
         sock.write (JSON.stringify(reply));
     });

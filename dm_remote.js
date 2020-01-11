@@ -22,6 +22,31 @@ client.on ('data', function (data) {
 	console.log ('data comes in: ' + data);
 	var reply = JSON.parse (data.toString());
 	switch (reply.what) {
+		case 'add user':
+			console.log ('We received a reply for: ' + reply.what + ':' + reply.invoId);
+			callbacks [reply.invoId] (); // call the stored callback, 0 argument
+			delete callbacks [reply.invoId]; // remove from hash
+			break;
+		case 'add subject':
+			console.log ('We received a reply for: ' + reply.what + ':' + reply.invoId);
+			callbacks [reply.invoId] (); 
+			delete callbacks [reply.invoId]; 
+			break;
+		case 'get user list':
+			console.log ('We received a reply for: ' + reply.what + ':' + reply.invoId);
+			callbacks [reply.invoId] (reply.obj); 
+			delete callbacks [reply.invoId]; 
+			break;
+		case 'login':
+			console.log ('We received a reply for: ' + reply.what + ':' + reply.invoId);
+			callbacks [reply.invoId] (reply.obj);
+			delete callbacks [reply.invoId];
+			break;
+		case 'add private message':
+			console.log ('We received a reply for: ' + reply.what + ':' + reply.invoId);
+			callbacks [reply.invoId] ();
+			delete callbacks [reply.invoId];
+			break;
 		// TODO complete list of commands
 		case 'get private message list':
 		case 'get public message list':
@@ -58,11 +83,62 @@ function Invo (str, cb) {
 }
 
 //
-//
 // Exported functions as 'dm'
-//
+// adduser, addsubject,  getSubjectList, getUserList, login
+// addPrivateMessage, getPrivateMessageList, getSubject 
+// addPublicMessage, getPublicMessageList
 //
 
+exports.addUser = function (u,p, cb) {
+	var invo = new Invo('add user', cb);
+	invo.u = u;
+	invo.p = p;
+	client.write(JSON.stringify(invo));
+}
+
+exports.addSubject = function (s, cb) {
+	var invo = new Invo('add subject', cb);
+	invo.s = s;
+	client.write(JSON.stringify(invo));
+}
+
+// YA TENEMOS getSubjectList
+
+
+exports.getUserList = function (cb) {
+	client.write (JSON.stringify(new Invo ('get user list', cb)) + "$$#-#$$");
+}
+
+exports.login = function (u, p, cb) {
+	var invo = new Invo('login', cb);
+	invo.u = u;
+	invo.p = p;
+	client.write(JSON.stringify(invo));
+}
+
+exports.addPrivateMessage = function (msg, cb) {
+	var invo = new Invo('add private message', cb);
+	invo.msg = msg;
+	client.write(JSON.stringify(invo));
+}
+
+// YA TENEMOS GETPRIVATEMESSAGELIST
+
+
+function getSubject (sbj, cb) {
+	var invo = new Invo('get subject',cb);
+	invo.sbj = sbj;
+	client.write(JSON.stringify(invo));
+}
+
+exports.addPublicMessage = function (msg, cb) {
+	var invo = new Invo('add public message', cb);
+	invo.msg = msg;
+	client.write(JSON.stringify(invo));
+}
+
+// YA TENEMOS getPublicMessageList
+// YA DEFINIDOS
 exports.getPublicMessageList = function  (sbj, cb) {
 	var invo = new Invo ('get public message list', cb);	
 	invo.sbj = sbj;
