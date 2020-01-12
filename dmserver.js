@@ -12,9 +12,39 @@ var PORT = process.argv[3];//'9900'
 var dm = require ('./dm.js');
 //Añadir un argumento adicional a dmserver.js que será el puerto donde éste publicará sus cambios
 var PORTPUB = process.argv[4];
+rep.bind('tcp://'+HOST+':'+PORT);
 pub.bind('tcp://'+HOST+':'+PORTPUB);
+//SPLIT
+PORTSSUBS.split(",").forEach(function(port) {
+    sub.connect('tcp://'+port);
+}, this);
+// SubscribirseS
+sub.subscribe('checkpoint');
+sub.on('message', function(data){
+	var str = data.toString();
+	var invo = JSON.parse (str.split('checkpoint')[1]);
 
-//CAMBIAR PARA ZMQ
+	switch (invo.what) {
+		case 'add private message':
+            invo.obj = dm.addPrivateMessage (invo.msg);
+            pub.send('webserver' + JSON.stringify(invo));
+        break;
+		case 'add public message':
+            invo.obj = dm.addPublicMessage (invo.msg);
+            pub.send('webserver' + JSON.stringify(invo));
+        break;
+        case 'add user':
+            invo.obj = dm.addUser (invo.u, invo.p);
+            pub.send('webserver' + JSON.stringify(invo));
+        break;
+        case 'add subject':
+            invo.obj = dm.addSubject (invo.s);
+            pub.send('webserver' + JSON.stringify(invo));
+        break;
+	}
+});
+
+
 // Create the server socket, on client connections, bind event handlers
 server = net.createServer(function(sock) {
     
@@ -74,8 +104,8 @@ server = net.createServer(function(sock) {
     
 });
     
-server.listen(PORT, HOST, function () {
-    console.log('Server listening on ' + HOST +':'+ PORT);
-});
+//server.listen(PORT, HOST, function () {
+//    console.log('Server listening on ' + HOST +':'+ PORT);
+//});
 
 
