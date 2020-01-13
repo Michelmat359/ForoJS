@@ -35,7 +35,7 @@ sub.on('message', function(data){
 	switch (invo.what) {
 		case 'add private message':
 		case 'add public message':
-			console.log("JAVI: " + JSON.stringify(invo.msg));
+			console.log(JSON.stringify(invo.msg));
             io.emit('message', JSON.stringify(invo.msg));
         break;
         case 'add user':
@@ -50,6 +50,7 @@ sub.on('message', function(data){
 
 //Iniciamos todas las funciones una vez lanzado. 
 dm.Start(HOST, PORT, function () {
+	app.set('views', viewsdir)
 	// serve static css as is
 	app.use('/css', express.static(__dirname + '/css'));
 
@@ -63,7 +64,7 @@ dm.Start(HOST, PORT, function () {
 		get_page (req, res);
 	});
 
-	app.set('views', viewsdir)
+
 
 	io.on('connection', function(sock) {
 		console.log("Event: client connected");
@@ -80,11 +81,11 @@ dm.Start(HOST, PORT, function () {
 			msg.ts = new Date(); // timestamp
 			if (msg.isPrivate) {
 				dm.addPrivateMessage (msg, function () {
-					io.emit('message', JSON.stringify(msg));
+					//io.emit('message', JSON.stringify(msg));
 				});
 			} else {
 				dm.addPublicMessage (msg, function () {
-					io.emit('message', JSON.stringify(msg));
+					//io.emit('message', JSON.stringify(msg));
 				});
 			}
 		});
@@ -97,20 +98,21 @@ dm.Start(HOST, PORT, function () {
 					sock.emit ('new subject', 'err', 'El tema ya existe', sbj);
 				} else {
 					sock.emit ('new subject', 'ack', id, sbj);
-					io.emit ('new subject', 'add', id, sbj);
+					//io.emit ('new subject', 'add', id, sbj);
 				}      
 			});
 		});
 	
 		// New subject added to storage, and broadcasted
 		sock.on('new user', function (usr, pas) {
+			console.log ( 'Creando usuario:' + usr + ' con pass:' + pas);
 			dm.addUser(usr, pas, function (exists) {
-				console.log("Event: new user: " + usr + '(' + pas + ')');
+				console.log('exists:' + exists);
 				if (exists) {
 					sock.emit ('new user', 'err', usr, 'El usuario ya existe');
 				} else {
 					sock.emit ('new user', 'ack', usr);
-					io.emit ('new user', 'add', usr);      
+					//io.emit ('new user', 'add', usr);      
 				}
 			});
 		});
@@ -162,6 +164,7 @@ dm.Start(HOST, PORT, function () {
 		});
 		if(PORTHTTP!=null)
 		http.listen (PORTHTTP, on_startup);
+		else
 		http.listen (10000, on_startup);
 	
 	});

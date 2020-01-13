@@ -77,6 +77,7 @@ io.on('connection', function(sock) {
 
     // New subject added to storage, and broadcasted
     sock.on('new user', function (usr, pas) {
+		console.log('new user');
     	dm.addUser(usr, pas, function (exists) {
     		console.log("Event: new user: " + usr + '(' + pas + ')');
     		if (exists) {
@@ -123,6 +124,7 @@ io.on('connection', function(sock) {
   	sock.on ('login', function (u,p) {
   		console.log("Event: user logs in");  		
   		dm.login (u, p, function (ok) {
+			  console.log('Entro en la funcion');
   			if (!ok) {
   				console.log ("Wrong user credentials: " + u + '(' + p + ')');
   				sock.emit ('login', 'err', 'Credenciales incorrectas');

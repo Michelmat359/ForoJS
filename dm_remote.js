@@ -7,7 +7,6 @@ exports.Start = function (host, port, cb) {
 	req.connect('tcp://'+host+':'+port);
     	console.log('Connected to: ' + host + ':' + port);
     	if (cb != null) cb();
-
 }
 
 
@@ -94,33 +93,35 @@ exports.addUser = function (u,p, cb) {
 	var invo = new Invo('add user', cb);
 	invo.u = u;
 	invo.p = p;
-	req.write(JSON.stringify(invo));
+	req.send(JSON.stringify(invo));
 }
 
 exports.addSubject = function (s, cb) {
 	var invo = new Invo('add subject', cb);
 	invo.s = s;
-	req.write(JSON.stringify(invo));
+	req.send(JSON.stringify(invo));
 }
 
 // YA TENEMOS getSubjectList
 
 
 exports.getUserList = function (cb) {
-	req.write (JSON.stringify(new Invo ('get user list', cb)) + "$$#-#$$");
+	req.send(JSON.stringify(new Invo ('get user list', cb)));
+
+
 }
 
 exports.login = function (u, p, cb) {
 	var invo = new Invo('login', cb);
 	invo.u = u;
 	invo.p = p;
-	req.write(JSON.stringify(invo));
+	req.send(JSON.stringify(invo));
 }
 
 exports.addPrivateMessage = function (msg, cb) {
 	var invo = new Invo('add private message', cb);
 	invo.msg = msg;
-	req.write(JSON.stringify(invo));
+	req.send(JSON.stringify(invo));
 }
 
 // YA TENEMOS GETPRIVATEMESSAGELIST
@@ -129,13 +130,13 @@ exports.addPrivateMessage = function (msg, cb) {
 function getSubject (sbj, cb) {
 	var invo = new Invo('get subject',cb);
 	invo.sbj = sbj;
-	req.write(JSON.stringify(invo));
+	req.send(JSON.stringify(invo));
 }
 
 exports.addPublicMessage = function (msg, cb) {
 	var invo = new Invo('add public message', cb);
 	invo.msg = msg;
-	req.write(JSON.stringify(invo));
+	req.send(JSON.stringify(invo));
 }
 
 // YA TENEMOS getPublicMessageList
@@ -143,18 +144,20 @@ exports.addPublicMessage = function (msg, cb) {
 exports.getPublicMessageList = function  (sbj, cb) {
 	var invo = new Invo ('get public message list', cb);	
 	invo.sbj = sbj;
-	req.write (JSON.stringify(invo));
+	req.send (JSON.stringify(invo));
 }
 
 exports.getPrivateMessageList = function (u1, u2, cb) {
 	invo = new Invo ('get private message list', cb);
 	invo.u1 = u1;
 	invo.u2 = u2;
-	req.write (JSON.stringify(invo));
+	req.send (JSON.stringify(invo));
 }
 
 exports.getSubjectList = function (cb) {
-	req.write (JSON.stringify(new Invo ('get subject list', cb)));
+	req.send (JSON.stringify(new Invo ('get subject list', cb)));
+	//invo = new Invo ('get subject', cb);
+
 }
 
 // TODO: complete the rest of the forum functions.
