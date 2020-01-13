@@ -7,14 +7,13 @@ var dm = require('./dm_remote.js');
 var zmq= require('zmq');
 var sub = zmq.socket('sub');
 
-var viewsdir = __dirname + '/views';
-app.set('views', viewsdir)
-
-var HOST = '127.0.0.1';
+//var HOST = 127.0.0.1
+var HOST = process.argv[2];
 var PORT = process.argv[3];
 // Añadir un argumento adicional a forum.js, que será la URL del publicador de datos al que se subscribirá.
 var PORTSUB = process.argv[4]; 
 var PORTHTTP = process.argv[5];
+var viewsdir = __dirname + '/views';
 // called on connection
 function get_page (req, res) {
 	console.log ("Serving request " + req.params.page);
@@ -25,6 +24,29 @@ function get_page (req, res) {
 function on_startup () {
 	console.log("Starting: server current directory:" + __dirname)
 }
+
+sub.connect('tcp://'+HOST+':'+PORTSUB);
+sub.subscribe('webserver');
+sub.on('message', function(data){
+	var str = data.toString();
+	var invo = JSON.parse (str.split('webserver')[1]);
+
+    console.log('Request is:' + invo.what + ':' + str);
+	switch (invo.what) {
+		case 'add private message':
+		case 'add public message':
+			console.log("JAVI: " + JSON.stringify(invo.msg));
+            io.emit('message', JSON.stringify(invo.msg));
+        break;
+        case 'add user':
+            io.emit ('new user', 'add', invo.u);    
+        break;
+        case 'add subject':
+            io.emit ('new subject', 'add', invo.s);
+        break;
+	}
+});
+
 
 //Iniciamos todas las funciones una vez lanzado. 
 dm.Start(HOST, PORT, function () {
@@ -41,18 +63,20 @@ dm.Start(HOST, PORT, function () {
 		get_page (req, res);
 	});
 
+	app.set('views', viewsdir)
+
 	io.on('connection', function(sock) {
 		console.log("Event: client connected");
 		sock.on('disconnect', function(){
 			console.log('Event: client disconnected');
 		});
 	
-		  // on messages that come from client, store them, and send them to every 
-		  // connected client
-		  // TODO: We better optimize message delivery using rooms.
-		  sock.on('message', function(msgStr){
-			  console.log("Event: message: " + msgStr);
-			  var msg = JSON.parse (msgStr);
+		// on messages that come from client, store them, and send them to every 
+		// connected client
+		// TODO: We better optimize message delivery using rooms.
+		sock.on('message', function(msgStr){
+			console.log("Event: message: " + msgStr);
+			var msg = JSON.parse (msgStr);
 			msg.ts = new Date(); // timestamp
 			if (msg.isPrivate) {
 				dm.addPrivateMessage (msg, function () {
@@ -138,7 +162,6 @@ dm.Start(HOST, PORT, function () {
 		});
 		if(PORTHTTP!=null)
 		http.listen (PORTHTTP, on_startup);
-	else
 		http.listen (10000, on_startup);
 	
 	});

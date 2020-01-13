@@ -12,12 +12,14 @@ var PORT = process.argv[3];//'9900'
 var dm = require ('./dm.js');
 //Añadir un argumento adicional a dmserver.js que será el puerto donde éste publicará sus cambios
 var PORTPUB = process.argv[4];
+var PORTSSUBS = process.argv[5];
 rep.bind('tcp://'+HOST+':'+PORT);
 pub.bind('tcp://'+HOST+':'+PORTPUB);
 //SPLIT
 PORTSSUBS.split(",").forEach(function(port) {
     sub.connect('tcp://'+port);
 }, this);
+
 // SubscribirseS
 sub.subscribe('checkpoint');
 sub.on('message', function(data){
@@ -46,13 +48,13 @@ sub.on('message', function(data){
 
 
 // Create the server socket, on client connections, bind event handlers
-server = net.createServer(function(sock) {
+//server = net.createServer(function(sock) {
     
     // We have a connection - a socket object is assigned to the connection automatically
-    console.log('Conected: ' + sock.remoteAddress + ':' + sock.remotePort);
+   // console.log('Conected: ' + sock.remoteAddress + ':' + sock.remotePort);
     
     // Add a 'data' event handler to this instance of socket
-    rep.on('data', function(data) {
+    rep.on('message', function(data) {
         
         console.log('request comes in...' + data);
         var str = data.toString();
@@ -102,7 +104,6 @@ server = net.createServer(function(sock) {
         console.log('Connection closed');
     });
     
-});
     
 //server.listen(PORT, HOST, function () {
 //    console.log('Server listening on ' + HOST +':'+ PORT);
